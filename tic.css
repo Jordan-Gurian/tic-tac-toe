@@ -1,5 +1,26 @@
+:root {
+    --row-height: 200px;
+    --col-height: 200px;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, var(--col-height));
+    grid-template-rows:  repeat(3, var(--row-height));
+    gap: 10px;
+    justify-content: center;
+}
+
+.box {
+    background-color: aqua;
+    font-size: 8rem;
+    text-align: center;
+    line-height: var(--row-height);
+}
+

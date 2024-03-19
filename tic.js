@@ -1,4 +1,4 @@
-function createGameboard() {
+const gameboard = (function() {
     let board = []
 
     const getBoard = () => board;
@@ -7,7 +7,7 @@ function createGameboard() {
     const resetBoard = () => board = [];
 
     return { getBoard, addMove, resetBoard };
-}
+})();
 
 function createPlayer(name) {   
     const symbol = ''
@@ -30,6 +30,7 @@ function createPlayer(name) {
     return { name, symbol, getMoves, setMoves, resetMoves, getWins, addWins, 
         getDraws, addDraws, getLosses, addLosses };
 }
+
 
 function createGame(player1, player2, gameboard) {
 
@@ -64,7 +65,7 @@ function createGame(player1, player2, gameboard) {
             [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];        
         
         for (condition of winConditions) {
-            if (condition.every((arrayVal) => player.getMoves().includes(String(arrayVal)))) {
+            if (condition.every((arrayVal) => player.getMoves().includes(arrayVal))) {
                 return true;
             }
         }
@@ -75,26 +76,24 @@ function createGame(player1, player2, gameboard) {
     const getTurnNum = () => turn;
     const turnIncrememnt = () => turn++;
 
-    const startGame = function() {
-        const MAX_TURNS = 9;
+    const isOver = function() {
+        MAX_TURNS = 9;
+        if (isWinner(player1) || isWinner(player2) || getTurnNum() >= MAX_TURNS) {
+            return true
+        }
+        return false
+    }
+
+
+    const gameResets = function () {
         gameboard.resetBoard();
         player1.resetMoves();
         player2.resetMoves();
         setPlayerSymbol(player1);
         setPlayerSymbol(player2);
-    
-        while (!isWinner(player1) && !isWinner(player2) && 
-            getTurnNum() < MAX_TURNS) {
-    
-            if (getTurnNum() % 2 == 0) {
-                makeMove(player1, prompt("Give me the index!"));
-            }
-            else {
-                makeMove(player2, prompt("Give me the index!"));
-            }
-            turnIncrememnt();
-        }
-        
+    }
+
+    const declareWinner = function() {
         let message;
         if (isWinner(player1)) {
             player1.addWins();
@@ -111,10 +110,61 @@ function createGame(player1, player2, gameboard) {
             player2.addDraws();
             message = `It's a draw!`;
         }  
-        return message
+        const winner = document.querySelector(".winner-declaration");
+        winner.textContent = message;
+        winner.style.fontSize = "4rem";
+        winner.style.color = "green";
     }
     
 
-    return { player1, player2, gameboard, startGame }
+    return { player1, player2, gameboard, isOver, gameResets, makeMove, getTurnNum, turnIncrememnt, declareWinner }
 }
+
+function display(game, gameboard) {
+    const boxes = Array.from(document.querySelectorAll(".box"));
+    const NUM_BOXES = 9;
+
+    const renderContents = function() {
+        const board = gameboard.getBoard();
+        for (let i = 0; i < NUM_BOXES; i++) {
+            boxes[i].textContent = board[i];
+
+        }
+    }
+
+    for (let boxNum = 0; boxNum < boxes.length; boxNum++) {
+        boxes[boxNum].addEventListener('click', function() {       
+            addMarks(boxNum);
+            renderContents();
+        })
+    }
+
+    const addMarks = function(boxNum) {
+        if (game.getTurnNum() % 2 == 0) {
+            game.makeMove(game.player1, boxNum);
+        }
+        else {
+            game.makeMove(game.player2, boxNum);
+        }
+        game.turnIncrememnt();
+        if (game.isOver()) {
+            game.declareWinner()
+        }
+        return
+    }
+
+    return { boxes, renderContents, addMarks}
+}
+
+player1Name = document.querySelector("#player1");
+player2Name = document.querySelector("#player2");
+startButton = document.querySelector(".start-button");
+startButton.addEventListener("click", function() {
+    const player1 = createPlayer(player1Name.value)
+    const player2 = createPlayer(player2Name.value);
+    const newGame = createGame(player1, player2, gameboard);
+    const newDisplay = display(newGame, gameboard)
+    newDisplay.renderContents();
+    newGame.gameResets();
+})
 
