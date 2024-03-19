@@ -11,6 +11,7 @@ const gameboard = (function() {
 
 function createPlayer(name) {   
     const symbol = ''
+
     let moves = [];
     const getMoves = () => moves;
     const setMoves = (index) => moves.push(index)
@@ -45,20 +46,7 @@ function createGame(player1, player2, gameboard) {
             return `${player} is not in this game!`;
         }
         return
-    }
-
-    const makeMove = function(player, index) {
-        const MIN_INDEX = 0;
-        const MAX_INDEX = 8
-
-        isValidIndex = () => (index >= MIN_INDEX) && (index <= MAX_INDEX);
-        while(!(gameboard.getBoard()[index] === undefined && isValidIndex(index))) {
-            index = prompt("Not valid! Give an index from 0 to 8 that has not been chosen!")
-        }
-        gameboard.addMove(index, player.symbol);
-        player.setMoves(index);
-        return
-    }   
+    } 
 
     const isWinner = function(player) {
         const winConditions = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
@@ -75,6 +63,7 @@ function createGame(player1, player2, gameboard) {
     let turn = 0;
     const getTurnNum = () => turn;
     const turnIncrememnt = () => turn++;
+    const turnReset = () => turn = 0;
 
     const isOver = function() {
         MAX_TURNS = 9;
@@ -84,40 +73,19 @@ function createGame(player1, player2, gameboard) {
         return false
     }
 
-
     const gameResets = function () {
         gameboard.resetBoard();
         player1.resetMoves();
         player2.resetMoves();
         setPlayerSymbol(player1);
         setPlayerSymbol(player2);
+        turnReset();
     }
-
-    const declareWinner = function() {
-        let message;
-        if (isWinner(player1)) {
-            player1.addWins();
-            player2.addLosses();
-            message = `${player1.name} wins!`;
-        }
-        else if (isWinner(player2)) {
-            player1.addLosses();
-            player2.addWins();
-            message = `${player2.name} wins!`;
-        }
-        else {
-            player1.addDraws();
-            player2.addDraws();
-            message = `It's a draw!`;
-        }  
-        const winner = document.querySelector(".winner-declaration");
-        winner.textContent = message;
-        winner.style.fontSize = "4rem";
-        winner.style.color = "green";
-    }
+        
     
 
-    return { player1, player2, gameboard, isOver, gameResets, makeMove, getTurnNum, turnIncrememnt, declareWinner }
+    return { player1, player2, gameboard, isWinner, isOver, gameResets, getTurnNum,
+        turnIncrememnt, turnReset }
 }
 
 function display(game, gameboard) {
@@ -134,37 +102,87 @@ function display(game, gameboard) {
 
     for (let boxNum = 0; boxNum < boxes.length; boxNum++) {
         boxes[boxNum].addEventListener('click', function() {       
+            if (game.isOver()) {
+                return
+            }
             addMarks(boxNum);
             renderContents();
         })
     }
 
-    const addMarks = function(boxNum) {
-        if (game.getTurnNum() % 2 == 0) {
-            game.makeMove(game.player1, boxNum);
+    badMove = document.querySelector(".bad-move");
+    errorMessage = "BAD MOVE";
+    const makeMove = function(player, index) {
+        if(boxes[index].textContent === '') {
+            gameboard.addMove(index, player.symbol);
+            player.setMoves(index);
+            badMove.textContent = "";
         }
         else {
-            game.makeMove(game.player2, boxNum);
+            badMove.textContent = errorMessage;
         }
-        game.turnIncrememnt();
-        if (game.isOver()) {
-            game.declareWinner()
+
+        return
+    }  
+
+    const addMarks = function(boxNum) {
+        if (game.getTurnNum() % 2 == 0) {
+            makeMove(game.player1, boxNum);
+        }
+        else {
+            makeMove(game.player2, boxNum);
+        }
+        
+        if (badMove.textContent === errorMessage){
+            return
+        }
+        else {
+            game.turnIncrememnt();
+            if (game.isOver()) {
+                declareWinner()
+            }
         }
         return
     }
 
-    return { boxes, renderContents, addMarks}
+    const winner = document.querySelector(".winner-declaration");
+    const declareWinner = function() {
+        let message;
+        if (game.isWinner(game.player1)) {
+            game.player1.addWins();
+            game.player2.addLosses();
+            message = `${game.player1.name} wins!`;
+        }
+        else if (game.isWinner(game.player2)) {
+            game.player1.addLosses();
+            game.player2.addWins();
+            message = `${game.player2.name} wins!`;
+        }
+        else {
+            game.player1.addDraws();
+            game.player2.addDraws();
+            message = `It's a draw!`;
+        }  
+        winner.textContent = message;
+    }
+
+    const resetWinner = () => winner.textContent = '';
+
+
+    return { boxes, resetWinner, renderContents, addMarks, makeMove, declareWinner}
 }
 
 player1Name = document.querySelector("#player1");
 player2Name = document.querySelector("#player2");
 startButton = document.querySelector(".start-button");
 startButton.addEventListener("click", function() {
-    const player1 = createPlayer(player1Name.value)
-    const player2 = createPlayer(player2Name.value);
-    const newGame = createGame(player1, player2, gameboard);
+    const playerFirst = createPlayer(player1Name.value)
+    const playerSecond = createPlayer(player2Name.value);
+    const newGame = createGame(playerFirst, playerSecond, gameboard);
     const newDisplay = display(newGame, gameboard)
-    newDisplay.renderContents();
     newGame.gameResets();
+    newDisplay.renderContents();
+    newDisplay.resetWinner();
+    
 })
 

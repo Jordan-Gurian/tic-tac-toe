@@ -24,3 +24,13 @@
     line-height: var(--row-height);
 }
 
+.bad-move {
+    font-size: 4rem;
+    font-weight: bold;
+    color: red;
+}
+
+.winner-declaration {
+    font-size: 4rem;
+    color: green;
+}
