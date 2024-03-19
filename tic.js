@@ -1,13 +1,12 @@
 function createGameboard() {
     let board = []
 
-    const addMove = function(index, symbol) {
-        board[index] = symbol;
-    }
+    const getBoard = () => board;
+    const addMove = (index, symbol) => board[index] = symbol;
 
     const resetBoard = () => board = [];
 
-    return { board, addMove, resetBoard };
+    return { getBoard, addMove, resetBoard };
 }
 
 function createPlayer(name) {   
@@ -52,14 +51,12 @@ function createGame(player1, player2, gameboard) {
         const MAX_INDEX = 8
 
         isValidIndex = () => (index >= MIN_INDEX) && (index <= MAX_INDEX);
-        if (gameboard.board[index] === undefined && isValidIndex(index)) {
-            gameboard.addMove(index, player.symbol);
-            player.setMoves(index);
+        while(!(gameboard.getBoard()[index] === undefined && isValidIndex(index))) {
+            index = prompt("Not valid! Give an index from 0 to 8 that has not been chosen!")
         }
-        else {
-            return "Invalid Move! That spot is already taken!"
-        }
-        return gameboard;
+        gameboard.addMove(index, player.symbol);
+        player.setMoves(index);
+        return
     }   
 
     const isWinner = function(player) {
@@ -78,45 +75,46 @@ function createGame(player1, player2, gameboard) {
     const getTurnNum = () => turn;
     const turnIncrememnt = () => turn++;
 
-    return { player1, player2, gameboard, setPlayerSymbol, makeMove, isWinner,
-        getTurnNum, turnIncrememnt }
-}
-
-function startGame(game) {
-    const MAX_TURNS = 9;
-    game.gameboard.resetBoard();
-    game.player1.resetMoves();
-    game.player2.resetMoves();
-    game.setPlayerSymbol(game.player1);
-    game.setPlayerSymbol(game.player2);
-
-    while (!game.isWinner(game.player1) && !game.isWinner(game.player2) && 
-        game.getTurnNum() < MAX_TURNS) {
-
-        if (game.getTurnNum() % 2 == 0) {
-            game.makeMove(game.player1, prompt("Give me the index!"), game.gameboard);
+    const startGame = function() {
+        const MAX_TURNS = 9;
+        gameboard.resetBoard();
+        player1.resetMoves();
+        player2.resetMoves();
+        setPlayerSymbol(player1);
+        setPlayerSymbol(player2);
+    
+        while (!isWinner(player1) && !isWinner(player2) && 
+            getTurnNum() < MAX_TURNS) {
+    
+            if (getTurnNum() % 2 == 0) {
+                makeMove(player1, prompt("Give me the index!"));
+            }
+            else {
+                makeMove(player2, prompt("Give me the index!"));
+            }
+            turnIncrememnt();
+        }
+        
+        let message;
+        if (isWinner(player1)) {
+            player1.addWins();
+            player2.addLosses();
+            message = `${player1.name} wins!`;
+        }
+        else if (isWinner(player2)) {
+            player1.addLosses();
+            player2.addWins();
+            message = `${player2.name} wins!`;
         }
         else {
-            game.makeMove(game.player2, prompt("Give me the index!"), game.gameboard);
-        }
-        game.turnIncrememnt();
+            player1.addDraws();
+            player2.addDraws();
+            message = `It's a draw!`;
+        }  
+        return message
     }
     
-    let message;
-    if (game.isWinner(game.player1)) {
-        game.player1.addWins();
-        game.player2.addLosses();
-        message = `${game.player1.name} wins!`;
-    }
-    else if (game.isWinner(game.player2)) {
-        game.player1.addLosses();
-        game.player2.addWins();
-        message = `${game.player2.name} wins!`;
-    }
-    else {
-        game.player1.addDraws();
-        game.player2.addDraws();
-        message = `It's a draw!`;
-    }  
-    return message
+
+    return { player1, player2, gameboard, startGame }
 }
+
