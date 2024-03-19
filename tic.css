@@ -1,6 +1,7 @@
 :root {
-    --row-height: 200px;
-    --col-height: 200px;
+    --row-height: 150px;
+    --col-width: 150px;
+    --standard-gap: 10px;
 }
 
 * {
@@ -9,12 +10,21 @@
     box-sizing: border-box;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: calc(2* var(--standard-gap));
+}
 .container {
     display: grid;
-    grid-template-columns: repeat(3, var(--col-height));
+    grid-template-columns: repeat(3, var(--col-width));
     grid-template-rows:  repeat(3, var(--row-height));
-    gap: 10px;
+    gap: var(--standard-gap);
     justify-content: center;
+    align-content: center;
 }
 
 .box {
@@ -24,13 +34,32 @@
     line-height: var(--row-height);
 }
 
+.announcements {
+    height: var(--row-height);
+}
+
 .bad-move {
     font-size: 4rem;
     font-weight: bold;
     color: red;
+
+
 }
 
 .winner-declaration {
     font-size: 4rem;
     color: green;
 }
+
+.start-button, 
+input[type="text"] {
+    height: calc(var(--row-height) / 5);
+    width: var(--col-width);
+}
+
+.footer {
+    display: grid;
+    gap: var(--standard-gap);
+    grid-template-columns: repeat(3, var(--col-width));
+}
+
