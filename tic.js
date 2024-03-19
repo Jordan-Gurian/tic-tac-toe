@@ -175,7 +175,8 @@ function display(game, gameboard) {
 player1Name = document.querySelector("#player1");
 player2Name = document.querySelector("#player2");
 startButton = document.querySelector(".start-button");
-startButton.addEventListener("click", function() {
+startButton.addEventListener("click", function(event) {
+    event.preventDefault();
     const playerFirst = createPlayer(player1Name.value)
     const playerSecond = createPlayer(player2Name.value);
     const newGame = createGame(playerFirst, playerSecond, gameboard);

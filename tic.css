@@ -2,12 +2,16 @@
     --row-height: 150px;
     --col-width: 150px;
     --standard-gap: 10px;
+    --dark-green: #16302B;
+    --tea-green: #C0E5C8;
+    --mountbatten-pink: #8B728E;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: var(--dark-green);
 }
 
 body {
@@ -25,17 +29,22 @@ body {
     gap: var(--standard-gap);
     justify-content: center;
     align-content: center;
+    background-color: var(--tea-green);
+    /* border: 4px solid black; */
 }
 
 .box {
-    background-color: aqua;
+    background-color: var(--dark-green);
+    color: var(--tea-green);
     font-size: 8rem;
     text-align: center;
     line-height: var(--row-height);
 }
 
 .announcements {
+    grid-column: 1 / -1;
     height: var(--row-height);
+    text-align: center;
 }
 
 .bad-move {
@@ -48,13 +57,33 @@ body {
 
 .winner-declaration {
     font-size: 4rem;
-    color: green;
+    color: var(--tea-green);
 }
 
 .start-button, 
 input[type="text"] {
     height: calc(var(--row-height) / 5);
     width: var(--col-width);
+    background-color: var(--mountbatten-pink);
+    border: 0;
+    border-radius: 8px;
+    color: var(--tea-green);
+    font-size: 1rem;
+
+}
+
+input[type="text"]::-webkit-input-placeholder{
+    color: var(--tea-green);
+    opacity: 0.6;
+}
+
+input[type="text"] {
+    padding-left: 10px;
+}
+
+.start-button:hover,
+.box:hover {
+    cursor: pointer;  
 }
 
 .footer {
